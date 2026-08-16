@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="la">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Aurea Consulting</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>" />
+</head>
+<body>
+  <!-- ===== Écran de connexion ===== -->
+  <div class="login-wrap" id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="mark">✦</span>
+        <h1>AUREA</h1>
+      </div>
+      <p class="login-sub">Panel d'administration</p>
+      <form id="login-form">
+        <div class="login-field">
+          <label>Utilisateur</label>
+          <input type="text" id="login-user" autocomplete="username" required />
+        </div>
+        <div class="login-field">
+          <label>Mot de passe</label>
+          <input type="password" id="login-pass" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="login-btn">Se connecter</button>
+        <p class="login-error" id="login-error"></p>
+      </form>
+      <div class="login-hint">Par défaut : <b>admin</b> / <b>admin123</b></div>
+    </div>
+  </div>
+
+  <!-- ===== Application ===== -->
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="topbar__brand">
+        <span class="mark">✦</span>
+        <span>AUREA — Admin</span>
+      </div>
+      <div class="topbar__actions">
+        <a href="/" target="_blank" class="btn btn--ghost btn--sm">Voir le site ↗</a>
+        <span class="topbar__user">Connecté : <b id="topbar-user">admin</b></span>
+        <button class="btn btn--danger btn--sm" id="logout-btn">Déconnexion</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar__title">Sections</div>
+        <button class="nav-item active" data-panel="hero"><span class="ico">✦</span> Accueil</button>
+        <button class="nav-item" data-panel="about"><span class="ico">◈</span> Qui sommes-nous</button>
+        <button class="nav-item" data-panel="services"><span class="ico">⬡</span> Services</button>
+        <button class="nav-item" data-panel="team"><span class="ico">◉</span> Équipe</button>
+        <button class="nav-item" data-panel="contact"><span class="ico">✉</span> Contact</button>
+        <button class="nav-item" data-panel="settings"><span class="ico">⚙</span> Réglages</button>
+        <button class="nav-item" data-panel="messages"><span class="ico">✧</span> Messages <span class="badge" id="msg-badge" hidden>0</span></button>
+      </aside>
+
+      <main class="content">
+        <!-- Panneaux injectés par JS -->
+        <section class="panel active" id="panel-hero"></section>
+        <section class="panel" id="panel-about"></section>
+        <section class="panel" id="panel-services"></section>
+        <section class="panel" id="panel-team"></section>
+        <section class="panel" id="panel-contact"></section>
+        <section class="panel" id="panel-settings"></section>
+        <section class="panel" id="panel-messages"></section>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
