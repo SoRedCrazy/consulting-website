@@ -28,6 +28,6 @@ VOLUME /app/data
 
 EXPOSE 3000
 
-USER node
-
+# L'entrypoint tourne en root le temps de corriger les permissions du volume,
+# puis redescend en utilisateur "node" via su-exec
 ENTRYPOINT ["./entrypoint.sh"]
