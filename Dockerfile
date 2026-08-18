@@ -19,6 +19,7 @@ ENV NODE_ENV=production
 COPY --from=build /app/node_modules ./node_modules
 COPY package*.json ./
 COPY server.js db.js db-defaults.js ./
+COPY src ./src
 COPY public ./public
 COPY entrypoint.sh ./entrypoint.sh
 RUN chmod +x entrypoint.sh
