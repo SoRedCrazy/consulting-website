@@ -108,6 +108,29 @@ function renderContact() {
     </div>`).join('');
 }
 
+// ---------- Couleur d'accent (modifiable dans l'admin) ----------
+let ACCENT_RGB = '212,175,55';
+function hexToRgb(hex) {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(String(hex || '').trim());
+  return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : null;
+}
+function lightenHex(hex, amt) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return hex;
+  return `rgb(${rgb.map((v) => Math.min(255, Math.round(v + (255 - v) * amt))).join(',')})`;
+}
+function applyAccentColor() {
+  const color = (SITE.settings || {}).accentColor;
+  const rgb = hexToRgb(color);
+  if (!rgb) return; // garde le jaune par défaut
+  ACCENT_RGB = rgb.join(',');
+  const root = document.documentElement;
+  root.style.setProperty('--gold', `#${rgb.map((v) => v.toString(16).padStart(2, '0')).join('')}`);
+  root.style.setProperty('--gold-2', lightenHex(color, 0.25));
+  root.style.setProperty('--gold-soft', `rgba(${ACCENT_RGB}, 0.12)`);
+  root.style.setProperty('--gold-rgb', ACCENT_RGB);
+}
+
 // ---------- Canvas : réseau de particules ----------
 function initCanvas() {
   const canvas = $('#bg-canvas');
@@ -147,7 +170,7 @@ function initCanvas() {
 
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(212,175,55,0.7)';
+      ctx.fillStyle = `rgba(${ACCENT_RGB},0.7)`;
       ctx.fill();
     }
     // liens
@@ -159,7 +182,7 @@ function initCanvas() {
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
-          ctx.strokeStyle = `rgba(212,175,55,${0.14 * (1 - d / LINK)})`;
+          ctx.strokeStyle = `rgba(${ACCENT_RGB},${0.14 * (1 - d / LINK)})`;
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -288,6 +311,7 @@ async function init() {
     console.error('Impossible de charger le contenu');
     return;
   }
+  applyAccentColor();
   bindText();
   renderHero();
   renderAbout();

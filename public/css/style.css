@@ -16,6 +16,7 @@
   --gold: #d4af37;
   --gold-2: #e8c96a;
   --gold-soft: rgba(212, 175, 55, 0.12);
+  --gold-rgb: 212, 175, 55;
   --blue: #4f8cff;
   --radius: 16px;
   --radius-sm: 10px;
@@ -72,7 +73,7 @@ body::before {
   transform: translateX(-50%);
   width: 900px;
   height: 900px;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.08), transparent 60%);
+  background: radial-gradient(circle, rgba(var(--gold-rgb), 0.08), transparent 60%);
   z-index: -1;
   pointer-events: none;
   animation: ambient 12s ease-in-out infinite;
@@ -140,12 +141,12 @@ body::before {
   color: #0a0c10;
   border-radius: 9px;
   font-size: 1.1rem;
-  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 4px 16px rgba(var(--gold-rgb), 0.4);
   animation: logoPulse 4s ease-in-out infinite;
 }
 @keyframes logoPulse {
-  0%, 100% { box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4); }
-  50% { box-shadow: 0 4px 26px rgba(212, 175, 55, 0.7); }
+  0%, 100% { box-shadow: 0 4px 16px rgba(var(--gold-rgb), 0.4); }
+  50% { box-shadow: 0 4px 26px rgba(var(--gold-rgb), 0.7); }
 }
 .nav__links {
   display: flex;
@@ -219,7 +220,7 @@ body::before {
 .btn--primary {
   background: linear-gradient(135deg, var(--gold), var(--gold-2));
   color: #0a0c10;
-  box-shadow: 0 8px 24px -8px rgba(212, 175, 55, 0.6);
+  box-shadow: 0 8px 24px -8px rgba(var(--gold-rgb), 0.6);
 }
 .btn--primary::before {
   content: '';
@@ -233,7 +234,7 @@ body::before {
 }
 .btn--primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 34px -8px rgba(212, 175, 55, 0.8);
+  box-shadow: 0 14px 34px -8px rgba(var(--gold-rgb), 0.8);
 }
 .btn--primary:hover::before { left: 100%; }
 .btn--ghost {
@@ -532,7 +533,7 @@ body::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 50%), rgba(212, 175, 55, 0.08), transparent 45%);
+  background: radial-gradient(400px circle at var(--mx, 50%) var(--my, 50%), rgba(var(--gold-rgb), 0.08), transparent 45%);
   opacity: 0;
   transition: opacity 0.4s;
   pointer-events: none;

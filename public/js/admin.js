@@ -92,6 +92,7 @@ $$('.nav-item').forEach((btn) => {
 // ---------- Chargement ----------
 async function loadAll() {
   DATA = await api('/api/admin/content');
+  applyAccent();
   buildSettings();
   buildHero();
   buildAbout();
@@ -99,6 +100,19 @@ async function loadAll() {
   buildTeam();
   buildContact();
   loadMessages();
+}
+
+// ---------- Couleur d'accent (appliquée au panel) ----------
+function applyAccent() {
+  const color = (DATA.settings || {}).accentColor;
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(String(color || '').trim());
+  if (!m) return;
+  const rgb = [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
+  const root = document.documentElement;
+  root.style.setProperty('--gold', `#${rgb.map((v) => v.toString(16).padStart(2, '0')).join('')}`);
+  root.style.setProperty('--gold-2', `rgb(${rgb.map((v) => Math.min(255, Math.round(v + (255 - v) * 0.25))).join(',')})`);
+  root.style.setProperty('--gold-soft', `rgba(${rgb.join(', ')}, 0.12)`);
+  root.style.setProperty('--gold-rgb', rgb.join(', '));
 }
 
 // ---------- Helpers de construction de champs ----------
@@ -137,6 +151,12 @@ function buildSettings() {
       <div class="field-row">
         ${field('Nom du site', 'siteName', s.siteName, 'text', 'settings')}
         ${field('Slogan', 'tagline', s.tagline, 'text', 'settings')}
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Couleur d'accent du site</label>
+          <input type="color" id="f-settings-accentColor" data-section="settings" data-key="accentColor" value="${esc(s.accentColor || '#d4af37')}" style="height:44px;padding:4px;cursor:pointer" />
+        </div>
       </div>
     </div>
     <div class="card">

@@ -3,6 +3,7 @@ module.exports = {
   settings: {
     siteName: 'AUREA CONSULTING',
     tagline: 'Web & Network Consulting',
+    accentColor: '#d4af37',
     phone: '+33 1 23 45 67 89',
     email: 'contact@aurea-consulting.fr',
     address: '12 Rue de la République, 75001 Paris',
