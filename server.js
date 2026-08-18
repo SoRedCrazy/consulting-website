@@ -117,12 +117,20 @@ app.delete('/api/admin/messages/:id', requireAdmin, (req, res) => {
 });
 
 // ---------- API admin : comptes ----------
+// Le compte "admin" est l'owner : insupprimable, seul à pouvoir gérer les comptes
+const OWNER_USERNAME = 'admin';
+const isOwner = (req) => req.session?.username === OWNER_USERNAME;
+
 app.get('/api/admin/users', requireAdmin, (req, res) => {
-  const users = db.prepare('SELECT id, username FROM users ORDER BY id').all();
-  res.json(users);
+  const users = db.prepare('SELECT id, username FROM users ORDER BY id').all()
+    .map((u) => ({ ...u, isOwner: u.username === OWNER_USERNAME }));
+  res.json({ users, isOwner: isOwner(req) });
 });
 
 app.post('/api/admin/users', requireAdmin, (req, res) => {
+  if (!isOwner(req)) {
+    return res.status(403).json({ error: 'Seul le compte admin peut créer des comptes' });
+  }
   const { username, password } = req.body || {};
   const name = String(username || '').trim();
   if (!/^[a-zA-Z0-9_.-]{3,30}$/.test(name)) {
@@ -141,8 +149,15 @@ app.post('/api/admin/users', requireAdmin, (req, res) => {
 app.put('/api/admin/users/:id/password', requireAdmin, (req, res) => {
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
   if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+  const owner = isOwner(req);
+  const self = user.username === req.session.username;
+  // Un user non-owner ne peut modifier que SON propre mot de passe
+  if (!owner && !self) {
+    return res.status(403).json({ error: 'Vous ne pouvez modifier que votre propre mot de passe' });
+  }
   const { currentPassword, newPassword } = req.body || {};
-  if (!bcrypt.compareSync(String(currentPassword || ''), user.passhash)) {
+  // Le mdp actuel est exigé quand on change le sien ; l'owner peut réinitialiser celui des autres
+  if (self && !bcrypt.compareSync(String(currentPassword || ''), user.passhash)) {
     return res.status(400).json({ error: 'Mot de passe actuel incorrect' });
   }
   if (String(newPassword || '').length < 6) {
@@ -154,8 +169,14 @@ app.put('/api/admin/users/:id/password', requireAdmin, (req, res) => {
 });
 
 app.delete('/api/admin/users/:id', requireAdmin, (req, res) => {
+  if (!isOwner(req)) {
+    return res.status(403).json({ error: 'Seul le compte admin peut supprimer des comptes' });
+  }
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
   if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+  if (user.username === OWNER_USERNAME) {
+    return res.status(400).json({ error: 'Le compte admin ne peut pas être supprimé' });
+  }
   if (user.username === req.session.username) {
     return res.status(400).json({ error: 'Vous ne pouvez pas supprimer votre propre compte' });
   }

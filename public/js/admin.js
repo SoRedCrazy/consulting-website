@@ -560,8 +560,28 @@ window.deleteMsg = async (id) => {
 // ---------- Comptes ----------
 async function loadUsers() {
   try {
-    const users = await api('/api/admin/users');
+    const { users, isOwner } = await api('/api/admin/users');
     const me = $('#topbar-user').textContent;
+
+    if (!isOwner) {
+      // User non-owner : ne voit que son propre compte, pour changer son mdp
+      const meUser = users.find((u) => u.username === me);
+      $('#panel-users').innerHTML = `
+        <div class="panel__head"><h2>👤 Mon compte</h2><p>Vous pouvez modifier votre mot de passe.</p></div>
+        <div class="card">
+          <div class="card__title"><span class="dot"></span> ${esc(me)}</div>
+          <div class="field-row">
+            <div class="field"><label>Mot de passe actuel</label>
+              <input type="password" id="cur-${meUser.id}" autocomplete="current-password" /></div>
+            <div class="field"><label>Nouveau mot de passe</label>
+              <input type="password" id="new-${meUser.id}" autocomplete="new-password" /></div>
+          </div>
+          <button class="btn btn--gold btn--sm" onclick="changePassword(${meUser.id})">🔑 Changer le mot de passe</button>
+        </div>`;
+      return;
+    }
+
+    // Owner : gestion complète des comptes
     $('#panel-users').innerHTML = `
       <div class="panel__head"><h2>👤 Comptes</h2><p>Gérez les comptes d'administration du panel.</p></div>
       <div class="card">
@@ -569,16 +589,22 @@ async function loadUsers() {
         ${users.map((u) => `
           <div class="list-item">
             <div class="list-item__head">
-              <h4>${esc(u.username)} ${u.username === me ? '<span class="badge">vous</span>' : ''}</h4>
-              <button class="btn btn--danger btn--sm" onclick="deleteUser(${u.id}, '${esc(u.username)}')">Supprimer</button>
+              <h4>${esc(u.username)}
+                ${u.isOwner ? '<span class="badge">owner</span>' : ''}
+                ${u.username === me ? '<span class="badge">vous</span>' : ''}
+              </h4>
+              ${!u.isOwner ? `<button class="btn btn--danger btn--sm" onclick="deleteUser(${u.id}, '${esc(u.username)}')">Supprimer</button>` : ''}
             </div>
             <div class="field-row">
-              <div class="field"><label>Mot de passe actuel</label>
-                <input type="password" id="cur-${u.id}" autocomplete="current-password" /></div>
+              ${u.username === me
+                ? `<div class="field"><label>Mot de passe actuel</label>
+                     <input type="password" id="cur-${u.id}" autocomplete="current-password" /></div>`
+                : `<div class="field"><label>Réinitialiser le mot de passe</label>
+                     <input type="password" id="cur-${u.id}" placeholder="(optionnel)" autocomplete="new-password" /></div>`}
               <div class="field"><label>Nouveau mot de passe</label>
                 <input type="password" id="new-${u.id}" autocomplete="new-password" /></div>
             </div>
-            <button class="btn btn--gold btn--sm" onclick="changePassword(${u.id})">🔑 Changer le mot de passe</button>
+            <button class="btn btn--gold btn--sm" onclick="changePassword(${u.id})">🔑 ${u.username === me ? 'Changer le mot de passe' : 'Réinitialiser le mot de passe'}</button>
           </div>`).join('')}
       </div>
       <div class="card">
