@@ -560,7 +560,10 @@ window.deleteMsg = async (id) => {
 // ---------- Comptes ----------
 async function loadUsers() {
   try {
-    const { users, isOwner } = await api('/api/admin/users');
+    const res = await api('/api/admin/users');
+    // Compat : ancien serveur renvoie un tableau, nouveau renvoie { users, isOwner }
+    const users = Array.isArray(res) ? res : res.users;
+    const isOwner = Array.isArray(res) ? true : res.isOwner;
     const me = $('#topbar-user').textContent;
 
     if (!isOwner) {
