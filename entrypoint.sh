@@ -3,4 +3,6 @@
 # pour que l'utilisateur "node" puisse écrire la base SQLite
 mkdir -p /app/data
 chown -R node:node /app/data
-exec su-exec node node server.js
+
+# Redescendre en utilisateur "node" (su de BusyBox, présent sur Alpine)
+exec su node -s /bin/sh -c "exec node server.js"

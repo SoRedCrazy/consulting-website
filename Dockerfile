@@ -29,5 +29,5 @@ VOLUME /app/data
 EXPOSE 3000
 
 # L'entrypoint tourne en root le temps de corriger les permissions du volume,
-# puis redescend en utilisateur "node" via su-exec
+# puis redescend en utilisateur "node" via su (BusyBox)
 ENTRYPOINT ["./entrypoint.sh"]
