@@ -29,6 +29,14 @@ db.exec(`
     username TEXT UNIQUE NOT NULL,
     passhash TEXT NOT NULL
   );
+  CREATE TABLE IF NOT EXISTS reviews (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
+    rating     INTEGER NOT NULL DEFAULT 5,
+    message    TEXT NOT NULL,
+    visible    INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 // ---------- Seed ----------

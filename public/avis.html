@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laisser un avis — Aurea Consulting</title>
+  <meta name="description" content="Partagez votre expérience avec nos services." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>" />
+</head>
+<body>
+  <div class="avis-page">
+    <a href="/" class="avis-back">← Retour au site</a>
+    <div class="avis-card">
+      <h1>Laisser un avis</h1>
+      <p>Partagez votre expérience avec nos services. Votre avis sera visible sur notre site.</p>
+      <form id="avis-form" novalidate>
+        <div class="field">
+          <label for="avis-name">Votre nom</label>
+          <input type="text" id="avis-name" required maxlength="100" placeholder="Ex : Jean Dupont" />
+        </div>
+        <div class="field">
+          <label>Votre note</label>
+          <div class="stars" id="avis-stars" role="radiogroup" aria-label="Note">
+            <button type="button" data-star="1" aria-label="1 étoile">★</button>
+            <button type="button" data-star="2" aria-label="2 étoiles">★</button>
+            <button type="button" data-star="3" aria-label="3 étoiles">★</button>
+            <button type="button" data-star="4" aria-label="4 étoiles">★</button>
+            <button type="button" data-star="5" aria-label="5 étoiles">★</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="avis-message">Votre avis</label>
+          <textarea id="avis-message" rows="5" required maxlength="2000" placeholder="Racontez-nous votre expérience..."></textarea>
+        </div>
+        <button type="submit" class="btn btn--primary btn--lg">Envoyer mon avis</button>
+        <p class="form__status" id="avis-status" role="status"></p>
+      </form>
+      <div class="avis-success" id="avis-success" hidden>
+        <div class="avis-success__icon">✓</div>
+        <h2>Merci pour votre avis !</h2>
+        <p>Il sera bientôt visible sur notre site.</p>
+        <a href="/" class="btn btn--ghost">Retour au site</a>
+      </div>
+    </div>
+  </div>
+  <script src="/js/avis.js"></script>
+</body>
+</html>

@@ -131,6 +131,42 @@ function applyAccentColor() {
   root.style.setProperty('--gold-rgb', ACCENT_RGB);
 }
 
+// ---------- Avis clients ----------
+function renderReviews() {
+  fetch('/api/reviews')
+    .then((r) => r.json())
+    .then((reviews) => {
+      const section = $('#reviews');
+      if (!Array.isArray(reviews) || reviews.length === 0) {
+        section.hidden = true; // pas d'avis → on masque la section
+        return;
+      }
+      // Affichage aléatoire : on mélange puis on prend jusqu'à 6
+      const shuffled = [...reviews].sort(() => Math.random() - 0.5).slice(0, 6);
+      $('#reviews-grid').innerHTML = shuffled.map((rv) => `
+        <article class="review-card reveal">
+          <div class="review-card__stars">${'★'.repeat(rv.rating)}${'☆'.repeat(5 - rv.rating)}</div>
+          <p class="review-card__text">« ${esc(rv.message)} »</p>
+          <div class="review-card__author">
+            <div class="review-card__avatar">${esc((rv.name || '?').slice(0, 1).toUpperCase())}</div>
+            <div>
+              <div class="review-card__name">${esc(rv.name)}</div>
+              <div class="review-card__date">${esc(rv.created_at)}</div>
+            </div>
+          </div>
+        </article>`).join('');
+      section.hidden = false;
+      // Relancer l'observer de révélation sur les nouvelles cartes
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.12 });
+      $$('.review-card.reveal').forEach((el) => io.observe(el));
+    })
+    .catch(() => { section.hidden = true; });
+}
+
 // ---------- Canvas : réseau de particules ----------
 function initCanvas() {
   const canvas = $('#bg-canvas');
@@ -317,6 +353,7 @@ async function init() {
   renderAbout();
   renderServices();
   renderTeam();
+  renderReviews();
   renderContact();
 
   initCanvas();

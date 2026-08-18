@@ -85,6 +85,7 @@ $$('.nav-item').forEach((btn) => {
     btn.classList.add('active');
     $(`#panel-${btn.dataset.panel}`).classList.add('active');
     if (btn.dataset.panel === 'messages') loadMessages();
+    if (btn.dataset.panel === 'reviews') loadReviews();
     if (btn.dataset.panel === 'users') loadUsers();
   });
 });
@@ -574,6 +575,94 @@ window.deleteMsg = async (id) => {
     await api(`/api/admin/messages/${id}`, { method: 'DELETE' });
     toast('Message supprimé');
     loadMessages();
+  } catch (e) { toast(e.message, true); }
+};
+
+// ---------- Avis ----------
+async function loadReviews() {
+  try {
+    const reviews = await api('/api/admin/reviews');
+    const badge = $('#rev-badge');
+    badge.textContent = reviews.length;
+    badge.hidden = reviews.length === 0;
+
+    // Lien public à partager avec les clients
+    const link = `${location.origin}/avis`;
+
+    if (reviews.length === 0) {
+      $('#panel-reviews').innerHTML = `
+        <div class="panel__head"><h2>⭐ Avis</h2><p>Les avis laissés par vos clients.</p></div>
+        <div class="card">
+          <div class="card__title"><span class="dot"></span> Lien à partager</div>
+          <div class="field-row">
+            <div class="field"><input type="text" id="rev-link" readonly value="${esc(link)}" onclick="this.select()" /></div>
+            <div class="field" style="display:flex;align-items:flex-end"><button class="btn btn--gold" onclick="copyRevLink()">📋 Copier le lien</button></div>
+          </div>
+          <p style="color:var(--text-dim);font-size:0.88rem">Envoyez ce lien à vos clients : ils pourront y laisser un avis (nom, note, texte).</p>
+        </div>
+        <div class="card"><div class="msg__empty"><div class="big">⭐</div>Aucun avis pour le moment.</div></div>`;
+      return;
+    }
+
+    $('#panel-reviews').innerHTML = `
+      <div class="panel__head"><h2>⭐ Avis</h2><p>${reviews.length} avis — les avis « visibles » s'affichent aléatoirement sur le site.</p></div>
+      <div class="card">
+        <div class="card__title"><span class="dot"></span> Lien à partager</div>
+        <div class="field-row">
+          <div class="field"><input type="text" id="rev-link" readonly value="${esc(link)}" onclick="this.select()" /></div>
+          <div class="field" style="display:flex;align-items:flex-end"><button class="btn btn--gold" onclick="copyRevLink()">📋 Copier le lien</button></div>
+        </div>
+      </div>
+      ${reviews.map((rv) => `
+        <div class="msg" style="opacity:${rv.visible ? 1 : 0.55}">
+          <div class="msg__head">
+            <div class="msg__from">
+              <div class="msg__avatar">${esc((rv.name || '?').slice(0, 1).toUpperCase())}</div>
+              <div>
+                <div class="msg__name">${esc(rv.name)} <span style="color:var(--gold);letter-spacing:2px;font-size:0.85rem">${'★'.repeat(rv.rating)}${'☆'.repeat(5 - rv.rating)}</span></div>
+                <div class="msg__email">${rv.visible ? '👁 Visible sur le site' : '🚫 Masqué'}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span class="msg__date">${esc(rv.created_at)}</span>
+              <button class="btn btn--ghost btn--sm" onclick="toggleReview(${rv.id}, ${rv.visible ? 'false' : 'true'})">${rv.visible ? '🚫 Masquer' : '👁 Afficher'}</button>
+              <button class="btn btn--danger btn--sm" onclick="deleteReview(${rv.id})">Supprimer</button>
+            </div>
+          </div>
+          <div class="msg__body">${esc(rv.message)}</div>
+        </div>`).join('')}`;
+  } catch (e) { toast(e.message, true); }
+}
+
+window.copyRevLink = async () => {
+  const input = $('#rev-link');
+  input.select();
+  try {
+    await navigator.clipboard.writeText(input.value);
+    toast('Lien copié ✓');
+  } catch {
+    document.execCommand('copy');
+    toast('Lien copié ✓');
+  }
+};
+
+window.toggleReview = async (id, visible) => {
+  try {
+    await api(`/api/admin/reviews/${id}/visible`, {
+      method: 'PUT',
+      body: JSON.stringify({ visible })
+    });
+    toast(visible ? 'Avis affiché sur le site' : 'Avis masqué');
+    loadReviews();
+  } catch (e) { toast(e.message, true); }
+};
+
+window.deleteReview = async (id) => {
+  if (!confirm('Supprimer définitivement cet avis ?')) return;
+  try {
+    await api(`/api/admin/reviews/${id}`, { method: 'DELETE' });
+    toast('Avis supprimé');
+    loadReviews();
   } catch (e) { toast(e.message, true); }
 };
 
