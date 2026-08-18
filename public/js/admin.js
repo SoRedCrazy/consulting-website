@@ -44,8 +44,11 @@ function showApp() {
 async function checkSession() {
   try {
     const me = await api('/api/admin/me');
-    if (me.isAdmin) { showApp(); await loadAll(); }
-    else showLogin();
+    if (me.isAdmin) {
+      if (me.username) $('#topbar-user').textContent = me.username;
+      showApp();
+      await loadAll();
+    } else showLogin();
   } catch { showLogin(); }
 }
 
@@ -82,6 +85,7 @@ $$('.nav-item').forEach((btn) => {
     btn.classList.add('active');
     $(`#panel-${btn.dataset.panel}`).classList.add('active');
     if (btn.dataset.panel === 'messages') loadMessages();
+    if (btn.dataset.panel === 'users') loadUsers();
   });
 });
 
@@ -550,6 +554,78 @@ window.deleteMsg = async (id) => {
     await api(`/api/admin/messages/${id}`, { method: 'DELETE' });
     toast('Message supprimé');
     loadMessages();
+  } catch (e) { toast(e.message, true); }
+};
+
+// ---------- Comptes ----------
+async function loadUsers() {
+  try {
+    const users = await api('/api/admin/users');
+    const me = $('#topbar-user').textContent;
+    $('#panel-users').innerHTML = `
+      <div class="panel__head"><h2>👤 Comptes</h2><p>Gérez les comptes d'administration du panel.</p></div>
+      <div class="card">
+        <div class="card__title"><span class="dot"></span> Comptes existants</div>
+        ${users.map((u) => `
+          <div class="list-item">
+            <div class="list-item__head">
+              <h4>${esc(u.username)} ${u.username === me ? '<span class="badge">vous</span>' : ''}</h4>
+              <button class="btn btn--danger btn--sm" onclick="deleteUser(${u.id}, '${esc(u.username)}')">Supprimer</button>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Mot de passe actuel</label>
+                <input type="password" id="cur-${u.id}" autocomplete="current-password" /></div>
+              <div class="field"><label>Nouveau mot de passe</label>
+                <input type="password" id="new-${u.id}" autocomplete="new-password" /></div>
+            </div>
+            <button class="btn btn--gold btn--sm" onclick="changePassword(${u.id})">🔑 Changer le mot de passe</button>
+          </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card__title"><span class="dot"></span> Créer un compte</div>
+        <div class="field-row">
+          <div class="field"><label>Nom d'utilisateur</label>
+            <input type="text" id="new-user-name" autocomplete="off" /></div>
+          <div class="field"><label>Mot de passe (min. 6 caractères)</label>
+            <input type="password" id="new-user-pass" autocomplete="new-password" /></div>
+        </div>
+        <button class="btn btn--gold" onclick="createUser()">+ Créer le compte</button>
+      </div>`;
+  } catch (e) { toast(e.message, true); }
+}
+
+window.createUser = async () => {
+  const username = $('#new-user-name').value.trim();
+  const password = $('#new-user-pass').value;
+  try {
+    await api('/api/admin/users', {
+      method: 'POST',
+      body: JSON.stringify({ username, password })
+    });
+    toast('Compte créé ✓');
+    loadUsers();
+  } catch (e) { toast(e.message, true); }
+};
+
+window.changePassword = async (id) => {
+  const currentPassword = $(`#cur-${id}`).value;
+  const newPassword = $(`#new-${id}`).value;
+  try {
+    await api(`/api/admin/users/${id}/password`, {
+      method: 'PUT',
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    toast('Mot de passe modifié ✓');
+    loadUsers();
+  } catch (e) { toast(e.message, true); }
+};
+
+window.deleteUser = async (id, username) => {
+  if (!confirm(`Supprimer le compte « ${username} » ?`)) return;
+  try {
+    await api(`/api/admin/users/${id}`, { method: 'DELETE' });
+    toast('Compte supprimé');
+    loadUsers();
   } catch (e) { toast(e.message, true); }
 };
 
