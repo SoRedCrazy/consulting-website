@@ -232,6 +232,11 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
+// ---------- Page avis (lien public) ----------
+app.get('/avis', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'avis.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`\n  ✦ Aurea Consulting — serveur démarré`);
   console.log(`  → Site :   http://localhost:${PORT}`);
